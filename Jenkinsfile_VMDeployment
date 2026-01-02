@@ -24,11 +24,11 @@ pipeline {
                     sshagent(['Nginx-Server-SSHKey']) {
                         sh """
                         echo "deploying to nginx server......"
-                        ssh -o StrictHostKeyChecking=no user@nginx-server sudo rm -rf /usr/share/nginx/html/*
-                        scp -o StrictHostKeyChecking=no -r * user@nginx-server:/usr/share/nginx/html/
+                        ssh -o StrictHostKeyChecking=no ${SSH_USER}@${NGINX_SERVER_IP} sudo rm -rf /usr/share/nginx/html/*
+                        scp -o StrictHostKeyChecking=no -r * ${SSH_USER}@${NGINX_SERVER_IP}:/usr/share/nginx/html/
                         echo "restarting nginx server......"
                         sleep 5
-                        ssh -o StrictHostKeyChecking=no user@nginx-server sudo systemctl restart nginx
+                        ssh -o StrictHostKeyChecking=no ${SSH_USER}@${NGINX_SERVER_IP} sudo systemctl restart nginx
                         """
                         }
                     }
