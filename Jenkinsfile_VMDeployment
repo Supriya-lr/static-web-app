@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    trigger{
+        githubPush
+    }
+
+    environment{
+        NGINX_SERVER_SSH_KEY = "Nginx-Server-SSHKey"
+        NGINX_SERVER_IP = "172.31.25.58"
+        SSH_USER = "ec2-user"
+    }
+
+    stages{
+        stage('git checkout'){
+            steps{
+                checkout scm
+            }
+        }
+
+        stage('Deploy to Nginx Server'){
+            steps{
+                sshagent(['Nginx-Server-SSHKey']) {
+                    sshagent(['Nginx-Server-SSHKey']) {
+                        sh """
+                        echo "deploying to nginx server......"
+                        ssh -o StrictHostKeyChecking=no user@nginx-server sudo rm -rf /usr/share/nginx/html/*
+                        scp -o StrictHostKeyChecking=no -r * user@nginx-server:/usr/share/nginx/html/
+                        echo "restarting nginx server......"
+                        sleep 5
+                        ssh -o StrictHostKeyChecking=no user@nginx-server sudo systemctl restart nginx
+                        """
+                        }
+                    }
+                }
+        }
+    }
+    post{
+        always{
+            cleanWs()
+        }
+        success{
+            echo "Deployment Successful!"
+        }
+        failure{
+            echo "Deployment Failed!"
+        }
+    }
+}
