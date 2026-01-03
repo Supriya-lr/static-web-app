@@ -2,13 +2,18 @@ pipeline {
     agent any
 
     triggers{
-        githubPush()  #Webhook trigger for GitHub repository
+        githubPush()  /* Webhook trigger for GitHub repository */
     }
 
     environment{
         NGINX_SERVER_SSH_KEY = "Nginx-Server-SSHKey"
         NGINX_SERVER_IP = "172.31.25.58"
         SSH_USER = "ec2-user"
+    }
+
+    options{
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '5))
     }
 
     stages{
